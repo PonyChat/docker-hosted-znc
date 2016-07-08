@@ -53,8 +53,6 @@ class athemeauth(znc.Module):
                 except Fault:
                     return znc.CONTINUE
 
-
-
         try:
             atheme.login(username, password)
 
@@ -66,9 +64,12 @@ class athemeauth(znc.Module):
 
             nname = os.getenv("IRC_NETWORK_NAME")
             nhost = os.getenv("IRC_NETWORK_DOMAIN")
+            bncsname = os.getenv("BNC_HOSTNAME")
+            ircserver = os.getenv("IRC_SERVER")
+            ircport = os.getenv("IRC_PORT")
 
-            auth.GetSocket().Write(":bnc.{} NOTICE * :*** Creating account for {}...\r\n".format(nhost, username))
-            auth.GetSocket().Write(":bnc.{} NOTICE * :*** Thank you for supporting {}!\r\n".format(nhost, nname))
+            auth.GetSocket().Write(":{} NOTICE * :*** Creating account for {}...\r\n".format(bncsname, username))
+            auth.GetSocket().Write(":{} NOTICE * :*** Thank you for supporting {}!\r\n".format(bncsname, nname))
 
             baseuser = znc.CZNC.Get().FindUser("scrub")
             baseuser.thisown = 0
@@ -100,7 +101,7 @@ class athemeauth(znc.Module):
             #They are going to want a network to talk on.
             user.AddNetwork(nname, s)
             network = user.FindNetwork(nname)
-            network.AddServer("irc.{} +6697".format(nhost))
+            network.AddServer("{} {}".format(ircserver, ircport))
             network.AddChan("#bnc", True)
             network.JoinChans()
 
@@ -109,8 +110,8 @@ class athemeauth(znc.Module):
 
             znc.CZNC.Get().WriteConfig()
 
-        auth.GetSocket().Write(":bnc.{} NOTICE * :*** Welcome to the PonyChat BNC {}!\r\n".format(nhost, username))
-        auth.GetSocket().Write(":bnc.{} NOTICE * :*** Your IP address is {} and may be checked for proxies.\r\n".format(nhost, auth.GetRemoteIP()))
+        auth.GetSocket().Write(":{} NOTICE * :*** Welcome to the {} BNC {}!\r\n".format(bncsname, nname, username))
+        auth.GetSocket().Write(":{} NOTICE * :*** Your IP address is {} and may be checked for proxies.\r\n".format(bncsname, auth.GetRemoteIP()))
 
         auth.AcceptLogin(user)
         user.thisown = 0
